@@ -6,7 +6,7 @@
 
 **Quick start.** `npm install`, then one of:
 - the Claude Code plugin: `claude --plugin-dir /path/to/truthgate/plugin/claude-code` (or `claude plugin marketplace
-  add /path/to/truthgate/plugin && claude plugin install truthgate@truthgate-plugins`); every turn that uses tools is
+  add boriskezikov/truthgate && claude plugin install truthgate@truthgate-plugins`); every turn that uses tools is
   audited on your own login, see `plugin/claude-code/README.md`;
 - the CLI: `TRUTHGATE_LIVE=1 npx tsx src/cli.ts audit --record record.json`;
 - the service: `TRUTHGATE_API_TOKEN=… TRUTHGATE_MODEL_PATH=cli|api|openai npx tsx service/server.ts`, contract in

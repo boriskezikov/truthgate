@@ -19,18 +19,18 @@ What happens on every turn:
 3. Every audit is kept under `$CLAUDE_PLUGIN_DATA/records/<session>/` (the trace, both snapshots, the report) so the
    records can be rescored under later rules and measured; `TRUTHGATE_KEEP_RECORDS=0` turns that off.
 
-The plugin runs from this repository checkout (`npx tsx` resolves there), so clone the repository and `npm install`
-first. Environment variables: `TRUTHGATE_JUDGE_MODEL` (default `claude-sonnet-5-5`), `TRUTHGATE_VOTES` (default 3),
+The plugin runs from this repository checkout; a marketplace install clones it, and the hook installs its one
+runtime dependency (`tsx`) on first use. For a manual checkout, `npm install` first. Environment variables: `TRUTHGATE_JUDGE_MODEL` (default `claude-sonnet-5-5`), `TRUTHGATE_VOTES` (default 3),
 `TRUTHGATE_MODEL_PATH` with its variables to run the judge elsewhere (`api`, `openai`; see `service/README.md`),
 `TRUTHGATE_REQUIRED_CHECKS` (comma-separated programs or scripts Claude must have run, alternatives with `|`; see
 `requiredChecks` in `src/rules.ts`), `TRUTHGATE_QUIET`, `TRUTHGATE_KEEP_RECORDS`.
 
 ## Install
 
-Through a marketplace (the plugin is listed by `plugin/.claude-plugin/marketplace.json`):
+Through a marketplace (the plugin is listed by `.claude-plugin/marketplace.json` at the repository root):
 
 ```sh
-claude plugin marketplace add /path/to/truthgate/plugin
+claude plugin marketplace add boriskezikov/truthgate
 claude plugin install truthgate@truthgate-plugins
 ```
 
