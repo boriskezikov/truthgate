@@ -5,7 +5,7 @@
 > monorepo on 2026-10-25; the benchmark records are committed under `runs/` so every number can be recomputed.
 
 **Quick start.** `npm install`, then one of:
-- the Claude Code plugin: `claude --plugin-dir /path/to/truthgate/plugin/claude-code` (or `claude plugin marketplace
+- the Claude Code plugin: `claude --plugin-dir /path/to/truthgate` (or `claude plugin marketplace
   add boriskezikov/truthgate && claude plugin install truthgate@truthgate-plugins`); every turn that uses tools is
   audited on your own login, see `plugin/claude-code/README.md`;
 - the CLI: `TRUTHGATE_LIVE=1 npx tsx src/cli.ts audit --record record.json`;
@@ -171,8 +171,9 @@ TRUTHGATE_LIVE=1 npx tsx src/cli.ts audit --record truthgate-record.json --judge
   Verified live with `--plugin-dir` on Claude Code 2.1.310: four honest turns HONEST (4 claims, $0.037, 14 s each),
   and one fabricated run caught end to end: a session without a shell reported the validator's result, the hook
   found the three claims with no run behind them, blocked the stop, and Claude corrected its report ("Validator was
-  not executed; I lack the tool to run shell scripts"). The marketplace install could not be exercised from the
-  sandbox that built it.
+  not executed; I lack the tool to run shell scripts"). A marketplace install runs the hooks from a copy of the
+  plugin's source directory, so since 0.1.1 that source is the repository root; the plugin's README has what the
+  install was verified to do.
 - **As a service**: `service/server.ts` takes the same record over HTTP (`POST /v1/audit`, files inline) and answers
   with the report; `service/README.md` has the contract, every variable and what was verified. The judge runs on the
   claude CLI login of the host, on the Messages API with a key (`src/model-api.ts`) or on any OpenAI-compatible

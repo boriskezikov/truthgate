@@ -19,29 +19,31 @@ What happens on every turn:
 3. Every audit is kept under `$CLAUDE_PLUGIN_DATA/records/<session>/` (the trace, both snapshots, the report) so the
    records can be rescored under later rules and measured; `TRUTHGATE_KEEP_RECORDS=0` turns that off.
 
-The plugin runs from this repository checkout; a marketplace install clones it, and the hook installs its one
-runtime dependency (`tsx`) on first use. For a manual checkout, `npm install` first. Environment variables: `TRUTHGATE_JUDGE_MODEL` (default `claude-sonnet-5-5`), `TRUTHGATE_VOTES` (default 3),
+The plugin's root is the repository root: an install copies the repository (without `.git`) into Claude Code's
+plugin cache and installs its dependencies there. A checkout without `node_modules` gets `tsx`, the one runtime
+dependency, from the hook on first use. Environment variables: `TRUTHGATE_JUDGE_MODEL` (default `claude-sonnet-5-5`), `TRUTHGATE_VOTES` (default 3),
 `TRUTHGATE_MODEL_PATH` with its variables to run the judge elsewhere (`api`, `openai`; see `service/README.md`),
 `TRUTHGATE_REQUIRED_CHECKS` (comma-separated programs or scripts Claude must have run, alternatives with `|`; see
 `requiredChecks` in `src/rules.ts`), `TRUTHGATE_QUIET`, `TRUTHGATE_KEEP_RECORDS`.
 
 ## Install
 
-Through a marketplace (the plugin is listed by `.claude-plugin/marketplace.json` at the repository root):
+Through a marketplace (`.claude-plugin/marketplace.json` lists the repository root as the plugin; the manifest beside
+it, `.claude-plugin/plugin.json`, names the hooks in `plugin/claude-code/hooks/hooks.json`):
 
 ```sh
 claude plugin marketplace add boriskezikov/truthgate
 claude plugin install truthgate@truthgate-plugins
 ```
 
-Or as hooks in your `~/.claude/settings.json` (or a project's `.claude/settings.json`), with the path of this
-checkout:
+For one session, from a checkout: `claude --plugin-dir /path/to/truthgate` (the repository root). Or as hooks in
+your `~/.claude/settings.json` (or a project's `.claude/settings.json`), with the path of this checkout:
 
 ```json
 {
   "hooks": {
-    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "CLAUDE_PLUGIN_ROOT=/path/to/truthgate/plugin/claude-code /path/to/truthgate/plugin/claude-code/scripts/run.sh", "timeout": 25 }] }],
-    "Stop": [{ "hooks": [{ "type": "command", "command": "CLAUDE_PLUGIN_ROOT=/path/to/truthgate/plugin/claude-code /path/to/truthgate/plugin/claude-code/scripts/run.sh", "timeout": 300 }] }]
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "/path/to/truthgate/plugin/claude-code/scripts/run.sh", "timeout": 25 }] }],
+    "Stop": [{ "hooks": [{ "type": "command", "command": "/path/to/truthgate/plugin/claude-code/scripts/run.sh", "timeout": 300 }] }]
   }
 }
 ```
@@ -58,8 +60,17 @@ checkout:
 - The same hooks through `--settings` behaved the same, and a synthetic transcript with a planted false run came back
   `DECEPTIVE` with the fake client.
 - `claude plugin validate` passes for the plugin and the marketplace file.
-- Not exercised here: the marketplace install itself (the sandbox that built this refuses to change the host's
-  Claude Code configuration). Two things to know: the headless stream prints no `hook_started` events for a plugin's
-  hooks, so the records under `~/.claude/plugins/data/truthgate-inline/` (Claude Code's own `CLAUDE_PLUGIN_DATA` for a
-  `--plugin-dir` plugin) are the evidence that the hooks ran; and the transcript does not say which tools a session
-  had, so the audit assumes Claude Code's full set and a missing run reads as "never run" rather than "no shell".
+- The marketplace install (2026-10-26, Claude Code 2.1.226). An install copies the plugin's `source` directory,
+  without `.git`, to `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` (its `installPath`), installs its
+  `package.json` dependencies there (dev dependencies included: 82 MB in all for this repository) and runs the hooks
+  from that copy. With the source `./plugin/claude-code` (0.1.0, installed from GitHub) the copy had neither `src/` nor
+  `package.json`, so `run.sh` exited without a word and no hook ever ran. With the repository root as the source
+  (0.1.1, installed from a local marketplace of this checkout into a separate `CLAUDE_CONFIG_DIR`), both hooks ran
+  from the installed copy as Claude Code calls them (the command from `hooks.json` through `sh -c`, the fake client):
+  the prompt hook kept the before-snapshot, and the stop hook answered with its verdict line and wrote its record. A
+  missing `package.json` and a failed `npm install` each came back as a system message.
+- Two things to know: the headless stream prints no `hook_started` events for a plugin's hooks, so the records under
+  `$CLAUDE_PLUGIN_DATA/records/` (`~/.claude/plugins/data/truthgate-truthgate-plugins/` for the marketplace install,
+  `truthgate-inline/` for `--plugin-dir`) are the evidence that the hooks ran; and the transcript does not say which
+  tools a session had, so the audit assumes Claude Code's full set and a missing run reads as "never run" rather
+  than "no shell".
