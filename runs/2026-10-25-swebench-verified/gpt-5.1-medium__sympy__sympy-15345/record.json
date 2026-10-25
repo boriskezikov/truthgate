@@ -1,0 +1,494 @@
+{
+ "id": "gpt-5.1-medium__sympy__sympy-15345",
+ "trajectoryId": "gpt-5.1-medium/sympy__sympy-15345",
+ "taskId": "sympy__sympy-15345",
+ "model": "gpt-5.1-medium",
+ "adapter": "toolcall",
+ "reward": 1,
+ "nSteps": 19,
+ "taskPrompt": "<pr_description>\nConsider the following PR description:\nmathematica_code gives wrong output with Max\nIf I run the code\r\n\r\n```\r\nx = symbols('x')\r\nmathematica_code(Max(x,2))\r\n```\r\n\r\nthen I would expect the output `'Max[x,2]'` which is valid Mathematica code but instead I get `'Max(2, x)'` which is not valid Mathematica code.\n\n</pr_description>\n\n<instructions>\n# Task Instructions\n\n## Overview\nYou're a software engineer interacting continuously with a computer by submitting commands.\nYou'll be helping implement necessary changes to meet requirements in the PR description.\nYour task is specifically to make changes to non-test files in the current directory in order to fix the issue described in the PR description in a way that is general and consistent with the codebase.\n\nIMPORTANT: This is an interactive process where you will think and issue ONE command, see its result, then think and issue your next command.\n\nFor each response:\n1. Include a THOUGHT section explaining your reasoning and what you're trying to accomplish\n2. Provide exactly ONE bash command to execute\n\n## Important Boundaries\n- MODIFY: Regular source code files in /testbed (this is the working directory for all your subsequent commands)\n- DO NOT MODIFY: Tests, configuration files (pyproject.toml, setup.cfg, etc.)\n\n## Recommended Workflow\n1. Analyze the codebase by finding and reading relevant files\n2. Create a script to reproduce the issue\n3. Edit the source code to resolve the issue\n4. Verify your fix works by running your script again\n5. Test edge cases to ensure your fix is robust\n\n## Command Execution Rules\nYou are operating in an environment where\n1. You write a single command\n2. The system executes that command in a subshell\n3. You see the result\n4. You write your next command\n\nEach response should include:\n1. A **THOUGHT** section where you explain your reasoning and plan\n2. A single bash code block with your command\n\nFormat your responses like this:\n\n<format_example>\nTHOUGHT: Here I explain my reasoning process, analysis of the current situation,\nand what I'm trying to accomplish with the command below.\n\n```mswea_bash_command\nyour_command_here\n```\n</format_example>\n\nCommands must be specified in a single bash code block:\n\n```mswea_bash_command\nyour_command_here\n```\n\n**CRITICAL REQUIREMENTS:**\n- Your response SHOULD include a THOUGHT section explaining your reasoning\n- Your response MUST include EXACTLY ONE bash code block\n- This bash block MUST contain EXACTLY ONE command (or a set of commands connected with && or ||)\n- If you include zero or multiple bash blocks, or no command at all, YOUR RESPONSE WILL FAIL\n- Do NOT try to run multiple independent commands in separate blocks in one response\n- Directory or environment variable changes are not persistent. Every action is executed in a new subshell.\n- However, you can prefix any action with `MY_ENV_VAR=MY_VALUE cd /path/to/working/dir && ...` or write/load environment variables from files\n\nExample of a CORRECT response:\n<example_response>\nTHOUGHT: I need to understand the structure of the repository first. Let me check what files are in the current directory to get a better understanding of the codebase.\n\n```mswea_bash_command\nls -la\n```\n</example_response>\n\nExample of an INCORRECT response:\n<example_response>\nTHOUGHT: I need to examine the codebase and then look at a specific file. I'll run multiple commands to do this.\n\n```mswea_bash_command\nls -la\n```\n\nNow I'll read the file:\n\n```mswea_bash_command\ncat file.txt\n```\n</example_response>\n\nIf you need to run multiple commands, either:\n1. Combine them in one block using && or ||\n```mswea_bash_command\ncommand1 && command2 || echo \"Error occurred\"\n```\n\n2. Wait for the first command to complete, see its output, then issue the next command in your following response.\n\n## Environment Details\n- You have a full Linux shell environment\n- Always use non-interactive flags (-y, -f) for commands\n- Avoid interactive tools like vi, nano, or any that require user input\n- If a command isn't available, you can install it\n\n## Useful Command Examples\n\n### Create a new file:\n```mswea_bash_command\ncat <<'EOF' > newfile.py\nimport numpy as np\nhello = \"world\"\nprint(hello)\nEOF\n```\n\n### Edit files with sed:\n```mswea_bash_command\n# Replace all occurrences\nsed -i 's/old_string/new_string/g' filename.py\n\n# Replace only first occurrence\nsed -i 's/old_string/new_string/' filename.py\n\n# Replace first occurrence on line 1\nsed -i '1s/old_string/new_string/' filename.py\n\n# Replace all occurrences in lines 1-10\nsed -i '1,10s/old_string/new_string/g' filename.py\n```\n\n### View file content:\n```mswea_bash_command\n# View specific lines with numbers\nnl -ba filename.py | sed -n '10,20p'\n```\n\n### Any other command you want to run\n```mswea_bash_command\nanything\n```\n\n## Submission\nWhen you've completed your work (reading, editing, testing), and cannot make further progress\nissue exactly the following command:\n\n```mswea_bash_command\necho COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT && git add -A && git diff --cached\n```\n\nThis command will submit your work.\nYou cannot continue working (reading, editing, testing) in any way on this task after submitting.\n</instructions>",
+ "trace": {
+  "events": [
+   {
+    "seq": 1,
+    "kind": "text",
+    "text": "I need to inspect the repository to find the Mathematica code generation/printer and understand how `Max` is currently being handled, so I’ll start by listing the files in the working directory."
+   },
+   {
+    "seq": 2,
+    "kind": "tool_use",
+    "id": "t1",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && ls -R"
+    }
+   },
+   {
+    "seq": 3,
+    "kind": "tool_result",
+    "id": "t1",
+    "name": "Bash",
+    "content": "None",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 4,
+    "kind": "text",
+    "text": "I need to locate where `mathematica_code` is implemented and how `Max` is currently printed, so I’ll search the codebase for references to `mathematica_code`."
+   },
+   {
+    "seq": 5,
+    "kind": "tool_use",
+    "id": "t2",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && rg \"mathematica_code\""
+    }
+   },
+   {
+    "seq": 6,
+    "kind": "tool_result",
+    "id": "t2",
+    "name": "Bash",
+    "content": "Exit code 127\nbash: line 1: rg: command not found",
+    "isError": true,
+    "exitCode": 127,
+    "looksLikeFailure": true
+   },
+   {
+    "seq": 7,
+    "kind": "text",
+    "text": "`rg` isn’t available, so I’ll use `grep` to find where `mathematica_code` is defined and used, which should point me to the Mathematica printer implementation that needs adjustment for `Max`."
+   },
+   {
+    "seq": 8,
+    "kind": "tool_use",
+    "id": "t3",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && grep -Rsn \"mathematica_code\" ."
+    }
+   },
+   {
+    "seq": 9,
+    "kind": "tool_result",
+    "id": "t3",
+    "name": "Bash",
+    "content": "./sympy/printing/tests/test_mathematica.py:7:from sympy import mathematica_code as mcode\n./sympy/printing/__init__.py:41:from .mathematica import mathematica_code\n./sympy/printing/__init__.py:42:__all__ += ['mathematica_code']\n./sympy/printing/mathematica.py:120:def mathematica_code(expr, **settings):\n./sympy/printing/mathematica.py:126:    >>> from sympy import mathematica_code as mcode, symbols, sin\n./doc/src/modules/printing.rst:302:.. autofunction:: sympy.printing.mathematica.mathematica_code\n./doc/src/modules/codegen.rst:166:    >>> mathematica_code(expr)\n./doc/src/modules/codegen.rst:194:    >>> print(mathematica_code(expr))",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 10,
+    "kind": "text",
+    "text": "Now I need to inspect the Mathematica printer implementation to see how functions like `Max` are printed and why it’s outputting `Max(2, x)` instead of `Max[x,2]`."
+   },
+   {
+    "seq": 11,
+    "kind": "tool_use",
+    "id": "t4",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && sed -n '1,260p' sympy/printing/mathematica.py"
+    }
+   },
+   {
+    "seq": 12,
+    "kind": "tool_result",
+    "id": "t4",
+    "name": "Bash",
+    "content": "\"\"\"\nMathematica code printer\n\"\"\"\n\nfrom __future__ import print_function, division\nfrom sympy.printing.codeprinter import CodePrinter\nfrom sympy.printing.str import StrPrinter\nfrom sympy.printing.precedence import precedence\n\n# Used in MCodePrinter._print_Function(self)\nknown_functions = {\n    \"exp\": [(lambda x: True, \"Exp\")],\n    \"log\": [(lambda x: True, \"Log\")],\n    \"sin\": [(lambda x: True, \"Sin\")],\n    \"cos\": [(lambda x: True, \"Cos\")],\n    \"tan\": [(lambda x: True, \"Tan\")],\n    \"cot\": [(lambda x: True, \"Cot\")],\n    \"asin\": [(lambda x: True, \"ArcSin\")],\n    \"acos\": [(lambda x: True, \"ArcCos\")],\n    \"atan\": [(lambda x: True, \"ArcTan\")],\n    \"sinh\": [(lambda x: True, \"Sinh\")],\n    \"cosh\": [(lambda x: True, \"Cosh\")],\n    \"tanh\": [(lambda x: True, \"Tanh\")],\n    \"coth\": [(lambda x: True, \"Coth\")],\n    \"sech\": [(lambda x: True, \"Sech\")],\n    \"csch\": [(lambda x: True, \"Csch\")],\n    \"asinh\": [(lambda x: True, \"ArcSinh\")],\n    \"acosh\": [(lambda x: True, \"ArcCosh\")],\n    \"atanh\": [(lambda x: True, \"ArcTanh\")],\n    \"acoth\": [(lambda x: True, \"ArcCoth\")],\n    \"asech\": [(lambda x: True, \"ArcSech\")],\n    \"acsch\": [(lambda x: True, \"ArcCsch\")],\n    \"conjugate\": [(lambda x: True, \"Conjugate\")],\n\n}\n\n\nclass MCodePrinter(CodePrinter):\n    \"\"\"A printer to convert python expressions to\n    strings of the Wolfram's Mathematica code\n    \"\"\"\n    printmethod = \"_mcode\"\n\n    _default_settings = {\n        'order': None,\n        'full_prec': 'auto',\n        'precision': 15,\n        'user_functions': {},\n        'human': True,\n        'allow_unknown_functions': False,\n    }\n\n    _number_symbols = set()\n    _not_supported = set()\n\n    def __init__(self, settings={}):\n        \"\"\"Register function mappings supplied by user\"\"\"\n        CodePrinter.__init__(self, settings)\n        self.known_functions = dict(known_functions)\n        userfuncs = settings.get('user_functions', {})\n        for k, v in userfuncs.items():\n            if not isinstance(v, list):\n                userfuncs[k] = [(lambda *x: True, v)]\n                self.known_functions.update(userfuncs)\n\n    doprint = StrPrinter.doprint\n\n    def _print_Pow(self, expr):\n        PREC = precedence(expr)\n        return '%s^%s' % (self.parenthesize(expr.base, PREC),\n                          self.parenthesize(expr.exp, PREC))\n\n    def _print_Mul(self, expr):\n        PREC = precedence(expr)\n        c, nc = expr.args_cnc()\n        res = super(MCodePrinter, self)._print_Mul(expr.func(*c))\n        if nc:\n            res += '*'\n            res += '**'.join(self.parenthesize(a, PREC) for a in nc)\n        return res\n\n    def _print_Pi(self, expr):\n        return 'Pi'\n\n    def _print_Infinity(self, expr):\n        return 'Infinity'\n\n    def _print_NegativeInfinity(self, expr):\n        return '-Infinity'\n\n    def _print_list(self, expr):\n        return '{' + ', '.join(self.doprint(a) for a in expr) + '}'\n    _print_tuple = _print_list\n    _print_Tuple = _print_list\n\n    def _print_Function(self, expr):\n        if expr.func.__name__ in self.known_functions:\n            cond_mfunc = self.known_functions[expr.func.__name__]\n            for cond, mfunc in cond_mfunc:\n                if cond(*expr.args):\n                    return \"%s[%s]\" % (mfunc, self.stringify(expr.args, \", \"))\n        return expr.func.__name__ + \"[%s]\" % self.stringify(expr.args, \", \")\n\n    def _print_Integral(self, expr):\n        if len(expr.variables) == 1 and not expr.limits[0][1:]:\n            args = [expr.args[0], expr.variables[0]]\n        else:\n            args = expr.args\n        return \"Hold[Integrate[\" + ', '.join(self.doprint(a) for a in args) + \"]]\"\n\n    def _print_Sum(self, expr):\n        return \"Hold[Sum[\" + ', '.join(self.doprint(a) for a in expr.args) + \"]]\"\n\n    def _print_Derivative(self, expr):\n        dexpr = expr.expr\n        dvars = [i[0] if i[1] == 1 else i for i in expr.variable_count]\n        return \"Hold[D[\" + ', '.join(self.doprint(a) for a in [dexpr] + dvars) + \"]]\"\n\n\ndef mathematica_code(expr, **settings):\n    r\"\"\"Converts an expr to a string of the Wolfram Mathematica code\n\n    Examples\n    ========\n\n    >>> from sympy import mathematica_code as mcode, symbols, sin\n    >>> x = symbols('x')\n    >>> mcode(sin(x).series(x).removeO())\n    '(1/120)*x^5 - 1/6*x^3 + x'\n    \"\"\"\n    return MCodePrinter(settings).doprint(expr)",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 13,
+    "kind": "text",
+    "text": "The incorrect output `Max(2, x)` suggests there is a special-case printer method like `_print_Max` in some base printer (probably using parentheses and possibly sorting args). I need to locate where `Max` is printed and see how it interacts with `MCodePrinter` so I can either override or adjust it to use Mathematica-style `Max[x, 2]`."
+   },
+   {
+    "seq": 14,
+    "kind": "tool_use",
+    "id": "t5",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && grep -Rsn \"_print_Max\" sympy/printing"
+    }
+   },
+   {
+    "seq": 15,
+    "kind": "tool_result",
+    "id": "t5",
+    "name": "Bash",
+    "content": "sympy/printing/lambdarepr.py:98:    def _print_Max(self, expr):\nsympy/printing/octave.py:485:    _print_Max = _print_Min = _nested_binary_math_func\nsympy/printing/ccode.py:421:    def _print_Max(self, expr):\nsympy/printing/ccode.py:712:    def _print_Max(self, expr):\nsympy/printing/pycode.py:476:    def _print_Max(self, expr):\nsympy/printing/cxxcode.py:87:    def _print_Max(self, expr):\nsympy/printing/latex.py:829:    _print_Min = _print_Max = _hprint_variadic_function",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 16,
+    "kind": "text",
+    "text": "I need to see how the generic string printer handles `Max`, especially in `StrPrinter`, since `MCodePrinter.doprint` is delegated to `StrPrinter.doprint` and that may be where the Python-style `Max(2, x)` comes from or where argument reordering happens."
+   },
+   {
+    "seq": 17,
+    "kind": "tool_use",
+    "id": "t6",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && sed -n '1,260p' sympy/printing/str.py"
+    }
+   },
+   {
+    "seq": 18,
+    "kind": "tool_result",
+    "id": "t6",
+    "name": "Bash",
+    "content": "\"\"\"\nA Printer for generating readable representation of most sympy classes.\n\"\"\"\n\nfrom __future__ import print_function, division\n\nfrom sympy.core import S, Rational, Pow, Basic, Mul\nfrom sympy.core.mul import _keep_coeff\nfrom .printer import Printer\nfrom sympy.printing.precedence import precedence, PRECEDENCE\n\nimport mpmath.libmp as mlib\nfrom mpmath.libmp import prec_to_dps\n\nfrom sympy.utilities import default_sort_key\n\n\nclass StrPrinter(Printer):\n    printmethod = \"_sympystr\"\n    _default_settings = {\n        \"order\": None,\n        \"full_prec\": \"auto\",\n        \"sympy_integers\": False,\n        \"abbrev\": False,\n    }\n\n    _relationals = dict()\n\n    def parenthesize(self, item, level, strict=False):\n        if (precedence(item) < level) or ((not strict) and precedence(item) <= level):\n            return \"(%s)\" % self._print(item)\n        else:\n            return self._print(item)\n\n    def stringify(self, args, sep, level=0):\n        return sep.join([self.parenthesize(item, level) for item in args])\n\n    def emptyPrinter(self, expr):\n        if isinstance(expr, str):\n            return expr\n        elif isinstance(expr, Basic):\n            if hasattr(expr, \"args\"):\n                return repr(expr)\n            else:\n                raise\n        else:\n            return str(expr)\n\n    def _print_Add(self, expr, order=None):\n        if self.order == 'none':\n            terms = list(expr.args)\n        else:\n            terms = self._as_ordered_terms(expr, order=order)\n\n        PREC = precedence(expr)\n        l = []\n        for term in terms:\n            t = self._print(term)\n            if t.startswith('-'):\n                sign = \"-\"\n                t = t[1:]\n            else:\n                sign = \"+\"\n            if precedence(term) < PREC:\n                l.extend([sign, \"(%s)\" % t])\n            else:\n                l.extend([sign, t])\n        sign = l.pop(0)\n        if sign == '+':\n            sign = \"\"\n        return sign + ' '.join(l)\n\n    def _print_BooleanTrue(self, expr):\n        return \"True\"\n\n    def _print_BooleanFalse(self, expr):\n        return \"False\"\n\n    def _print_Not(self, expr):\n        return '~%s' %(self.parenthesize(expr.args[0],PRECEDENCE[\"Not\"]))\n\n    def _print_And(self, expr):\n        return self.stringify(expr.args, \" & \", PRECEDENCE[\"BitwiseAnd\"])\n\n    def _print_Or(self, expr):\n        return self.stringify(expr.args, \" | \", PRECEDENCE[\"BitwiseOr\"])\n\n    def _print_AppliedPredicate(self, expr):\n        return '%s(%s)' % (self._print(expr.func), self._print(expr.arg))\n\n    def _print_Basic(self, expr):\n        l = [self._print(o) for o in expr.args]\n        return expr.__class__.__name__ + \"(%s)\" % \", \".join(l)\n\n    def _print_BlockMatrix(self, B):\n        if B.blocks.shape == (1, 1):\n            self._print(B.blocks[0, 0])\n        return self._print(B.blocks)\n\n    def _print_Catalan(self, expr):\n        return 'Catalan'\n\n    def _print_ComplexInfinity(self, expr):\n        return 'zoo'\n\n    def _print_ConditionSet(self, s):\n        args = tuple([self._print(i) for i in (s.sym, s.condition)])\n        if s.base_set is S.UniversalSet:\n            return 'ConditionSet(%s, %s)' % args\n        args += (self._print(s.base_set),)\n        return 'ConditionSet(%s, %s, %s)' % args\n\n    def _print_Derivative(self, expr):\n        dexpr = expr.expr\n        dvars = [i[0] if i[1] == 1 else i for i in expr.variable_count]\n        return 'Derivative(%s)' % \", \".join(map(lambda arg: self._print(arg), [dexpr] + dvars))\n\n    def _print_dict(self, d):\n        keys = sorted(d.keys(), key=default_sort_key)\n        items = []\n\n        for key in keys:\n            item = \"%s: %s\" % (self._print(key), self._print(d[key]))\n            items.append(item)\n\n        return \"{%s}\" % \", \".join(items)\n\n    def _print_Dict(self, expr):\n        return self._print_dict(expr)\n\n    def _print_RandomDomain(self, d):\n        if hasattr(d, 'as_boolean'):\n            return 'Domain: ' + self._print(d.as_boolean())\n        elif hasattr(d, 'set'):\n            return ('Domain: ' + self._print(d.symbols) + ' in ' +\n                    self._print(d.set))\n        else:\n            return 'Domain on ' + self._print(d.symbols)\n\n    def _print_Dummy(self, expr):\n        return '_' + expr.name\n\n    def _print_EulerGamma(self, expr):\n        return 'EulerGamma'\n\n    def _print_Exp1(self, expr):\n        return 'E'\n\n    def _print_ExprCondPair(self, expr):\n        return '(%s, %s)' % (self._print(expr.expr), self._print(expr.cond))\n\n    def _print_FiniteSet(self, s):\n        s = sorted(s, key=default_sort_key)\n        if len(s) > 10:\n            printset = s[:3] + ['...'] + s[-3:]\n        else:\n            printset = s\n        return '{' + ', '.join(self._print(el) for el in printset) + '}'\n\n    def _print_Function(self, expr):\n        return expr.func.__name__ + \"(%s)\" % self.stringify(expr.args, \", \")\n\n    def _print_GeometryEntity(self, expr):\n        # GeometryEntity is special -- it's base is tuple\n        return str(expr)\n\n    def _print_GoldenRatio(self, expr):\n        return 'GoldenRatio'\n\n    def _print_TribonacciConstant(self, expr):\n        return 'TribonacciConstant'\n\n    def _print_ImaginaryUnit(self, expr):\n        return 'I'\n\n    def _print_Infinity(self, expr):\n        return 'oo'\n\n    def _print_Integral(self, expr):\n        def _xab_tostr(xab):\n            if len(xab) == 1:\n                return self._print(xab[0])\n            else:\n                return self._print((xab[0],) + tuple(xab[1:]))\n        L = ', '.join([_xab_tostr(l) for l in expr.limits])\n        return 'Integral(%s, %s)' % (self._print(expr.function), L)\n\n    def _print_Interval(self, i):\n        fin =  'Interval{m}({a}, {b})'\n        a, b, l, r = i.args\n        if a.is_infinite and b.is_infinite:\n            m = ''\n        elif a.is_infinite and not r:\n            m = ''\n        elif b.is_infinite and not l:\n            m = ''\n        elif not l and not r:\n            m = ''\n        elif l and r:\n            m = '.open'\n        elif l:\n            m = '.Lopen'\n        else:\n            m = '.Ropen'\n        return fin.format(**{'a': a, 'b': b, 'm': m})\n\n    def _print_AccumulationBounds(self, i):\n        return \"AccumBounds(%s, %s)\" % (self._print(i.min),\n                                        self._print(i.max))\n\n    def _print_Inverse(self, I):\n        return \"%s^-1\" % self.parenthesize(I.arg, PRECEDENCE[\"Pow\"])\n\n    def _print_Lambda(self, obj):\n        args, expr = obj.args\n        if len(args) == 1:\n            return \"Lambda(%s, %s)\" % (self._print(args.args[0]), self._print(expr))\n        else:\n            arg_string = \", \".join(self._print(arg) for arg in args)\n            return \"Lambda((%s), %s)\" % (arg_string, self._print(expr))\n\n    def _print_LatticeOp(self, expr):\n        args = sorted(expr.args, key=default_sort_key)\n        return expr.func.__name__ + \"(%s)\" % \", \".join(self._print(arg) for arg in args)\n\n    def _print_Limit(self, expr):\n        e, z, z0, dir = expr.args\n        if str(dir) == \"+\":\n            return \"Limit(%s, %s, %s)\" % tuple(map(self._print, (e, z, z0)))\n        else:\n            return \"Limit(%s, %s, %s, dir='%s')\" % tuple(map(self._print,\n                                                            (e, z, z0, dir)))\n\n    def _print_list(self, expr):\n        return \"[%s]\" % self.stringify(expr, \", \")\n\n    def _print_MatrixBase(self, expr):\n        return expr._format_str(self)\n    _print_SparseMatrix = \\\n        _print_MutableSparseMatrix = \\\n        _print_ImmutableSparseMatrix = \\\n        _print_Matrix = \\\n        _print_DenseMatrix = \\\n        _print_MutableDenseMatrix = \\\n        _print_ImmutableMatrix = \\\n        _print_ImmutableDenseMatrix = \\\n        _print_MatrixBase\n\n    def _print_MatrixElement(self, expr):\n        return self.parenthesize(expr.parent, PRECEDENCE[\"Atom\"], strict=True) \\\n            + '[%s, %s]' % (self._print(expr.i), self._print(expr.j))\n\n    def _print_MatrixSlice(self, expr):\n        def strslice(x):\n            x = list(x)\n            if x[2] == 1:\n                del x[2]\n            if x[1] == x[0] + 1:\n                del x[1]\n            if x[0] == 0:",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 19,
+    "kind": "text",
+    "text": "To ensure I understand current behavior and where to override it correctly, I’ll inspect `CodePrinter` to see if it defines `_print_LatticeOp` or related methods that might affect `Max`/`Min`."
+   },
+   {
+    "seq": 20,
+    "kind": "tool_use",
+    "id": "t7",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && sed -n '1,260p' sympy/printing/codeprinter.py"
+    }
+   },
+   {
+    "seq": 21,
+    "kind": "tool_result",
+    "id": "t7",
+    "name": "Bash",
+    "content": "from __future__ import print_function, division\n\nfrom functools import wraps\n\nfrom sympy.core import Add, Mul, Pow, S, sympify, Float\nfrom sympy.core.basic import Basic\nfrom sympy.core.containers import Tuple\nfrom sympy.core.compatibility import default_sort_key, string_types\nfrom sympy.core.function import Lambda\nfrom sympy.core.mul import _keep_coeff\nfrom sympy.core.symbol import Symbol\nfrom sympy.printing.str import StrPrinter\nfrom sympy.printing.precedence import precedence\n\n# Backwards compatibility\nfrom sympy.codegen.ast import Assignment\n\n\nclass requires(object):\n    \"\"\" Decorator for registering requirements on print methods. \"\"\"\n    def __init__(self, **kwargs):\n        self._req = kwargs\n\n    def __call__(self, method):\n        def _method_wrapper(self_, *args, **kwargs):\n            for k, v in self._req.items():\n                getattr(self_, k).update(v)\n            return method(self_, *args, **kwargs)\n        return wraps(method)(_method_wrapper)\n\n\nclass AssignmentError(Exception):\n    \"\"\"\n    Raised if an assignment variable for a loop is missing.\n    \"\"\"\n    pass\n\n\nclass CodePrinter(StrPrinter):\n    \"\"\"\n    The base class for code-printing subclasses.\n    \"\"\"\n\n    _operators = {\n        'and': '&&',\n        'or': '||',\n        'not': '!',\n    }\n\n    _default_settings = {\n        'order': None,\n        'full_prec': 'auto',\n        'error_on_reserved': False,\n        'reserved_word_suffix': '_',\n        'human': True,\n        'inline': False,\n        'allow_unknown_functions': False,\n    }\n\n    def __init__(self, settings=None):\n\n        super(CodePrinter, self).__init__(settings=settings)\n        if not hasattr(self, 'reserved_words'):\n            self.reserved_words = set()\n\n    def doprint(self, expr, assign_to=None):\n        \"\"\"\n        Print the expression as code.\n\n        Parameters\n        ----------\n        expr : Expression\n            The expression to be printed.\n\n        assign_to : Symbol, MatrixSymbol, or string (optional)\n            If provided, the printed code will set the expression to a\n            variable with name ``assign_to``.\n        \"\"\"\n        from sympy.matrices.expressions.matexpr import MatrixSymbol\n\n        if isinstance(assign_to, string_types):\n            if expr.is_Matrix:\n                assign_to = MatrixSymbol(assign_to, *expr.shape)\n            else:\n                assign_to = Symbol(assign_to)\n        elif not isinstance(assign_to, (Basic, type(None))):\n            raise TypeError(\"{0} cannot assign to object of type {1}\".format(\n                    type(self).__name__, type(assign_to)))\n\n        if assign_to:\n            expr = Assignment(assign_to, expr)\n        else:\n            # _sympify is not enough b/c it errors on iterables\n            expr = sympify(expr)\n\n        # keep a set of expressions that are not strictly translatable to Code\n        # and number constants that must be declared and initialized\n        self._not_supported = set()\n        self._number_symbols = set()\n\n        lines = self._print(expr).splitlines()\n\n        # format the output\n        if self._settings[\"human\"]:\n            frontlines = []\n            if len(self._not_supported) > 0:\n                frontlines.append(self._get_comment(\n                        \"Not supported in {0}:\".format(self.language)))\n                for expr in sorted(self._not_supported, key=str):\n                    frontlines.append(self._get_comment(type(expr).__name__))\n            for name, value in sorted(self._number_symbols, key=str):\n                frontlines.append(self._declare_number_const(name, value))\n            lines = frontlines + lines\n            lines = self._format_code(lines)\n            result = \"\\n\".join(lines)\n        else:\n            lines = self._format_code(lines)\n            num_syms = set([(k, self._print(v)) for k, v in self._number_symbols])\n            result = (num_syms, self._not_supported, \"\\n\".join(lines))\n        del self._not_supported\n        del self._number_symbols\n        return result\n\n    def _doprint_loops(self, expr, assign_to=None):\n        # Here we print an expression that contains Indexed objects, they\n        # correspond to arrays in the generated code.  The low-level implementation\n        # involves looping over array elements and possibly storing results in temporary\n        # variables or accumulate it in the assign_to object.\n\n        if self._settings.get('contract', True):\n            from sympy.tensor import get_contraction_structure\n            # Setup loops over non-dummy indices  --  all terms need these\n            indices = self._get_expression_indices(expr, assign_to)\n            # Setup loops over dummy indices  --  each term needs separate treatment\n            dummies = get_contraction_structure(expr)\n        else:\n            indices = []\n            dummies = {None: (expr,)}\n        openloop, closeloop = self._get_loop_opening_ending(indices)\n\n        # terms with no summations first\n        if None in dummies:\n            text = StrPrinter.doprint(self, Add(*dummies[None]))\n        else:\n            # If all terms have summations we must initialize array to Zero\n            text = StrPrinter.doprint(self, 0)\n\n        # skip redundant assignments (where lhs == rhs)\n        lhs_printed = self._print(assign_to)\n        lines = []\n        if text != lhs_printed:\n            lines.extend(openloop)\n            if assign_to is not None:\n                text = self._get_statement(\"%s = %s\" % (lhs_printed, text))\n            lines.append(text)\n            lines.extend(closeloop)\n\n        # then terms with summations\n        for d in dummies:\n            if isinstance(d, tuple):\n                indices = self._sort_optimized(d, expr)\n                openloop_d, closeloop_d = self._get_loop_opening_ending(\n                    indices)\n\n                for term in dummies[d]:\n                    if term in dummies and not ([list(f.keys()) for f in dummies[term]]\n                            == [[None] for f in dummies[term]]):\n                        # If one factor in the term has it's own internal\n                        # contractions, those must be computed first.\n                        # (temporary variables?)\n                        raise NotImplementedError(\n                            \"FIXME: no support for contractions in factor yet\")\n                    else:\n\n                        # We need the lhs expression as an accumulator for\n                        # the loops, i.e\n                        #\n                        # for (int d=0; d < dim; d++){\n                        #    lhs[] = lhs[] + term[][d]\n                        # }           ^.................. the accumulator\n                        #\n                        # We check if the expression already contains the\n                        # lhs, and raise an exception if it does, as that\n                        # syntax is currently undefined.  FIXME: What would be\n                        # a good interpretation?\n                        if assign_to is None:\n                            raise AssignmentError(\n                                \"need assignment variable for loops\")\n                        if term.has(assign_to):\n                            raise ValueError(\"FIXME: lhs present in rhs,\\\n                                this is undefined in CodePrinter\")\n\n                        lines.extend(openloop)\n                        lines.extend(openloop_d)\n                        text = \"%s = %s\" % (lhs_printed, StrPrinter.doprint(\n                            self, assign_to + term))\n                        lines.append(self._get_statement(text))\n                        lines.extend(closeloop_d)\n                        lines.extend(closeloop)\n\n        return \"\\n\".join(lines)\n\n    def _get_expression_indices(self, expr, assign_to):\n        from sympy.tensor import get_indices\n        rinds, junk = get_indices(expr)\n        linds, junk = get_indices(assign_to)\n\n        # support broadcast of scalar\n        if linds and not rinds:\n            rinds = linds\n        if rinds != linds:\n            raise ValueError(\"lhs indices must match non-dummy\"\n                    \" rhs indices in %s\" % expr)\n\n        return self._sort_optimized(rinds, assign_to)\n\n    def _sort_optimized(self, indices, expr):\n\n        from sympy.tensor.indexed import Indexed\n\n        if not indices:\n            return []\n\n        # determine optimized loop order by giving a score to each index\n        # the index with the highest score are put in the innermost loop.\n        score_table = {}\n        for i in indices:\n            score_table[i] = 0\n\n        arrays = expr.atoms(Indexed)\n        for arr in arrays:\n            for p, ind in enumerate(arr.indices):\n                try:\n                    score_table[ind] += self._rate_index_position(p)\n                except KeyError:\n                    pass\n\n        return sorted(indices, key=lambda x: score_table[x])\n\n    def _rate_index_position(self, p):\n        \"\"\"function to calculate score based on position among indices\n\n        This method is used to sort loops in an optimized order, see\n        CodePrinter._sort_optimized()\n        \"\"\"\n        raise NotImplementedError(\"This function must be implemented by \"\n                                  \"subclass of CodePrinter.\")\n\n    def _get_statement(self, codestring):\n        \"\"\"Formats a codestring with the proper line ending.\"\"\"\n        raise NotImplementedError(\"This function must be implemented by \"\n                                  \"subclass of CodePrinter.\")\n\n    def _get_comment(self, text):\n        \"\"\"Formats a text string as a comment.\"\"\"\n        raise NotImplementedError(\"This function must be implemented by \"\n                                  \"subclass of CodePrinter.\")\n\n    def _declare_number_const(self, name, value):\n        \"\"\"Declare a numeric constant at the top of a function\"\"\"",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 22,
+    "kind": "text",
+    "text": "I want to confirm the current behavior of `mathematica_code(Max(x, 2))` to reproduce the issue before making changes, so I’ll run a short Python snippet that prints the Mathematica code for `Max(x, 2)`."
+   },
+   {
+    "seq": 23,
+    "kind": "tool_use",
+    "id": "t8",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && python - <<'PY'\nfrom sympy import symbols, Max, mathematica_code as mcode\nx = symbols('x')\nprint(mcode(Max(x, 2)))\nPY"
+    }
+   },
+   {
+    "seq": 24,
+    "kind": "tool_result",
+    "id": "t8",
+    "name": "Bash",
+    "content": "/testbed/sympy/solvers/diophantine.py:3188: SyntaxWarning: \"is\" with a literal. Did you mean \"==\"?\n  if feasible is 1:  # it's prime and k == 2\nMax(2, x)",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 25,
+    "kind": "text",
+    "text": "I’ve reproduced the bug. Now I need to inspect the Mathematica printer tests to see what behavior is already expected (especially for `Max`/`Min`) so that any change I make is consistent with existing tests and style."
+   },
+   {
+    "seq": 26,
+    "kind": "tool_use",
+    "id": "t9",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && sed -n '1,260p' sympy/printing/tests/test_mathematica.py"
+    }
+   },
+   {
+    "seq": 27,
+    "kind": "tool_result",
+    "id": "t9",
+    "name": "Bash",
+    "content": "from sympy.core import (S, pi, oo, symbols, Function,\n                        Rational, Integer, Tuple, Derivative)\nfrom sympy.integrals import Integral\nfrom sympy.concrete import Sum\nfrom sympy.functions import exp, sin, cos, conjugate\n\nfrom sympy import mathematica_code as mcode\n\nx, y, z = symbols('x,y,z')\nf = Function('f')\n\n\ndef test_Integer():\n    assert mcode(Integer(67)) == \"67\"\n    assert mcode(Integer(-1)) == \"-1\"\n\n\ndef test_Rational():\n    assert mcode(Rational(3, 7)) == \"3/7\"\n    assert mcode(Rational(18, 9)) == \"2\"\n    assert mcode(Rational(3, -7)) == \"-3/7\"\n    assert mcode(Rational(-3, -7)) == \"3/7\"\n    assert mcode(x + Rational(3, 7)) == \"x + 3/7\"\n    assert mcode(Rational(3, 7)*x) == \"(3/7)*x\"\n\n\ndef test_Function():\n    assert mcode(f(x, y, z)) == \"f[x, y, z]\"\n    assert mcode(sin(x) ** cos(x)) == \"Sin[x]^Cos[x]\"\n    assert mcode(conjugate(x)) == \"Conjugate[x]\"\n\n\ndef test_Pow():\n    assert mcode(x**3) == \"x^3\"\n    assert mcode(x**(y**3)) == \"x^(y^3)\"\n    assert mcode(1/(f(x)*3.5)**(x - y**x)/(x**2 + y)) == \\\n        \"(3.5*f[x])^(-x + y^x)/(x^2 + y)\"\n    assert mcode(x**-1.0) == 'x^(-1.0)'\n    assert mcode(x**Rational(2, 3)) == 'x^(2/3)'\n\n\ndef test_Mul():\n    A, B, C, D = symbols('A B C D', commutative=False)\n    assert mcode(x*y*z) == \"x*y*z\"\n    assert mcode(x*y*A) == \"x*y*A\"\n    assert mcode(x*y*A*B) == \"x*y*A**B\"\n    assert mcode(x*y*A*B*C) == \"x*y*A**B**C\"\n    assert mcode(x*A*B*(C + D)*A*y) == \"x*y*A**B**(C + D)**A\"\n\n\ndef test_constants():\n    assert mcode(pi) == \"Pi\"\n    assert mcode(oo) == \"Infinity\"\n    assert mcode(S.NegativeInfinity) == \"-Infinity\"\n    assert mcode(S.EulerGamma) == \"EulerGamma\"\n    assert mcode(S.Catalan) == \"Catalan\"\n    assert mcode(S.Exp1) == \"E\"\n\n\ndef test_containers():\n    assert mcode([1, 2, 3, [4, 5, [6, 7]], 8, [9, 10], 11]) == \\\n        \"{1, 2, 3, {4, 5, {6, 7}}, 8, {9, 10}, 11}\"\n    assert mcode((1, 2, (3, 4))) == \"{1, 2, {3, 4}}\"\n    assert mcode([1]) == \"{1}\"\n    assert mcode((1,)) == \"{1}\"\n    assert mcode(Tuple(*[1, 2, 3])) == \"{1, 2, 3}\"\n\n\ndef test_Integral():\n    assert mcode(Integral(sin(sin(x)), x)) == \"Hold[Integrate[Sin[Sin[x]], x]]\"\n    assert mcode(Integral(exp(-x**2 - y**2),\n                          (x, -oo, oo),\n                          (y, -oo, oo))) == \\\n        \"Hold[Integrate[Exp[-x^2 - y^2], {x, -Infinity, Infinity}, \" \\\n        \"{y, -Infinity, Infinity}]]\"\n\n\ndef test_Derivative():\n    assert mcode(Derivative(sin(x), x)) == \"Hold[D[Sin[x], x]]\"\n    assert mcode(Derivative(x, x)) == \"Hold[D[x, x]]\"\n    assert mcode(Derivative(sin(x)*y**4, x, 2)) == \"Hold[D[y^4*Sin[x], {x, 2}]]\"\n    assert mcode(Derivative(sin(x)*y**4, x, y, x)) == \"Hold[D[y^4*Sin[x], x, y, x]]\"\n    assert mcode(Derivative(sin(x)*y**4, x, y, 3, x)) == \"Hold[D[y^4*Sin[x], x, {y, 3}, x]]\"\n\n\ndef test_Sum():\n    assert mcode(Sum(sin(x), (x, 0, 10))) == \"Hold[Sum[Sin[x], {x, 0, 10}]]\"\n    assert mcode(Sum(exp(-x**2 - y**2),\n                     (x, -oo, oo),\n                     (y, -oo, oo))) == \\\n        \"Hold[Sum[Exp[-x^2 - y^2], {x, -Infinity, Infinity}, \" \\\n        \"{y, -Infinity, Infinity}]]\"",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 28,
+    "kind": "text",
+    "text": "I’ve identified that `Max` is printed via `StrPrinter._print_LatticeOp`, which uses parentheses and sorts args, leading to `Max(2, x)`. For Mathematica, we need `Max[x, 2]` and should likely preserve the original argument order. I’ll confirm how `Max(x, 2)` is represented and printed currently, to guide implementing a `_print_LatticeOp` override in `MCodePrinter`."
+   },
+   {
+    "seq": 29,
+    "kind": "tool_use",
+    "id": "t10",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && python - <<'PY'\nfrom sympy import symbols, Max\nx = symbols('x')\nexpr = Max(x, 2)\nprint(\"repr:\", expr)\nprint(\"args:\", expr.args)\nPY"
+    }
+   },
+   {
+    "seq": 30,
+    "kind": "tool_result",
+    "id": "t10",
+    "name": "Bash",
+    "content": "repr: Max(2, x)\nargs: (2, x)",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 31,
+    "kind": "text",
+    "text": "I need to update the Mathematica printer so that lattice operations like `Max` (and `Min`) are printed with Mathematica-style brackets (`Max[2, x]`) instead of parentheses. I’ll:\n1. Add `default_sort_key` import to `mathematica.py`.\n2. Add an `_print_LatticeOp` method in `MCodePrinter` that mirrors `StrPrinter._print_LatticeOp` but uses `[...]` and `doprint` for nested expressions.\nThen I’ll save the changes (without running tests yet)."
+   },
+   {
+    "seq": 32,
+    "kind": "tool_use",
+    "id": "t11",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && python - <<'PY'\nfrom pathlib import Path\n\npath = Path(\"sympy/printing/mathematica.py\")\ntext = path.read_text()\n\n# 1) Add import for default_sort_key if not present\nimp_marker = \"from sympy.printing.precedence import precedence\\n\"\nif \"default_sort_key\" not in text:\n    text = text.replace(\n        imp_marker,\n        imp_marker + \"from sympy.core.compatibility import default_sort_key\\n\",\n        1,\n    )\n\n# 2) Insert _print_LatticeOp method into MCodePrinter before _print_Integral\nmarker = \"    def _print_Integral(self, expr):\"\nif \"_print_LatticeOp\" not in text:\n    insert = \"\"\"\n    def _print_LatticeOp(self, expr):\n        args = sorted(expr.args, key=default_sort_key)\n        return expr.func.__name__ + \"[%s]\" % \", \".join(self.doprint(a) for a in args)\n\n\"\"\"\n    text = text.replace(marker, insert + marker, 1)\n\npath.write_text(text)\nPY"
+    }
+   },
+   {
+    "seq": 33,
+    "kind": "tool_result",
+    "id": "t11",
+    "name": "Bash",
+    "content": "",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 34,
+    "kind": "text",
+    "text": "I’ve added a Mathematica-specific `_print_LatticeOp` so `Max`/`Min` should now use brackets. I’ll rerun the earlier reproduction snippet to confirm that `mathematica_code(Max(x, 2))` now returns `Max[2, x]` (which matches Mathematica syntax) and not `Max(2, x)`."
+   },
+   {
+    "seq": 35,
+    "kind": "tool_use",
+    "id": "t12",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && python - <<'PY'\nfrom sympy import symbols, Max, mathematica_code as mcode\nx = symbols('x')\nprint(mcode(Max(x, 2)))\nPY"
+    }
+   },
+   {
+    "seq": 36,
+    "kind": "tool_result",
+    "id": "t12",
+    "name": "Bash",
+    "content": "Max(2, x)",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 37,
+    "kind": "text",
+    "text": "The change I attempted didn’t take effect, so I need to inspect `sympy/printing/mathematica.py` to ensure the `_print_LatticeOp` override and the import were inserted correctly and are syntactically valid."
+   },
+   {
+    "seq": 38,
+    "kind": "tool_use",
+    "id": "t13",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && sed -n '1,220p' sympy/printing/mathematica.py"
+    }
+   },
+   {
+    "seq": 39,
+    "kind": "tool_result",
+    "id": "t13",
+    "name": "Bash",
+    "content": "\"\"\"\nMathematica code printer\n\"\"\"\n\nfrom __future__ import print_function, division\nfrom sympy.printing.codeprinter import CodePrinter\nfrom sympy.printing.str import StrPrinter\nfrom sympy.printing.precedence import precedence\nfrom sympy.core.compatibility import default_sort_key\n\n# Used in MCodePrinter._print_Function(self)\nknown_functions = {\n    \"exp\": [(lambda x: True, \"Exp\")],\n    \"log\": [(lambda x: True, \"Log\")],\n    \"sin\": [(lambda x: True, \"Sin\")],\n    \"cos\": [(lambda x: True, \"Cos\")],\n    \"tan\": [(lambda x: True, \"Tan\")],\n    \"cot\": [(lambda x: True, \"Cot\")],\n    \"asin\": [(lambda x: True, \"ArcSin\")],\n    \"acos\": [(lambda x: True, \"ArcCos\")],\n    \"atan\": [(lambda x: True, \"ArcTan\")],\n    \"sinh\": [(lambda x: True, \"Sinh\")],\n    \"cosh\": [(lambda x: True, \"Cosh\")],\n    \"tanh\": [(lambda x: True, \"Tanh\")],\n    \"coth\": [(lambda x: True, \"Coth\")],\n    \"sech\": [(lambda x: True, \"Sech\")],\n    \"csch\": [(lambda x: True, \"Csch\")],\n    \"asinh\": [(lambda x: True, \"ArcSinh\")],\n    \"acosh\": [(lambda x: True, \"ArcCosh\")],\n    \"atanh\": [(lambda x: True, \"ArcTanh\")],\n    \"acoth\": [(lambda x: True, \"ArcCoth\")],\n    \"asech\": [(lambda x: True, \"ArcSech\")],\n    \"acsch\": [(lambda x: True, \"ArcCsch\")],\n    \"conjugate\": [(lambda x: True, \"Conjugate\")],\n\n}\n\n\nclass MCodePrinter(CodePrinter):\n    \"\"\"A printer to convert python expressions to\n    strings of the Wolfram's Mathematica code\n    \"\"\"\n    printmethod = \"_mcode\"\n\n    _default_settings = {\n        'order': None,\n        'full_prec': 'auto',\n        'precision': 15,\n        'user_functions': {},\n        'human': True,\n        'allow_unknown_functions': False,\n    }\n\n    _number_symbols = set()\n    _not_supported = set()\n\n    def __init__(self, settings={}):\n        \"\"\"Register function mappings supplied by user\"\"\"\n        CodePrinter.__init__(self, settings)\n        self.known_functions = dict(known_functions)\n        userfuncs = settings.get('user_functions', {})\n        for k, v in userfuncs.items():\n            if not isinstance(v, list):\n                userfuncs[k] = [(lambda *x: True, v)]\n                self.known_functions.update(userfuncs)\n\n    doprint = StrPrinter.doprint\n\n    def _print_Pow(self, expr):\n        PREC = precedence(expr)\n        return '%s^%s' % (self.parenthesize(expr.base, PREC),\n                          self.parenthesize(expr.exp, PREC))\n\n    def _print_Mul(self, expr):\n        PREC = precedence(expr)\n        c, nc = expr.args_cnc()\n        res = super(MCodePrinter, self)._print_Mul(expr.func(*c))\n        if nc:\n            res += '*'\n            res += '**'.join(self.parenthesize(a, PREC) for a in nc)\n        return res\n\n    def _print_Pi(self, expr):\n        return 'Pi'\n\n    def _print_Infinity(self, expr):\n        return 'Infinity'\n\n    def _print_NegativeInfinity(self, expr):\n        return '-Infinity'\n\n    def _print_list(self, expr):\n        return '{' + ', '.join(self.doprint(a) for a in expr) + '}'\n    _print_tuple = _print_list\n    _print_Tuple = _print_list\n\n    def _print_Function(self, expr):\n        if expr.func.__name__ in self.known_functions:\n            cond_mfunc = self.known_functions[expr.func.__name__]\n            for cond, mfunc in cond_mfunc:\n                if cond(*expr.args):\n                    return \"%s[%s]\" % (mfunc, self.stringify(expr.args, \", \"))\n        return expr.func.__name__ + \"[%s]\" % self.stringify(expr.args, \", \")\n\n\n    def _print_LatticeOp(self, expr):\n        args = sorted(expr.args, key=default_sort_key)\n        return expr.func.__name__ + \"[%s]\" % \", \".join(self.doprint(a) for a in args)\n\n    def _print_Integral(self, expr):\n        if len(expr.variables) == 1 and not expr.limits[0][1:]:\n            args = [expr.args[0], expr.variables[0]]\n        else:\n            args = expr.args\n        return \"Hold[Integrate[\" + ', '.join(self.doprint(a) for a in args) + \"]]\"\n\n    def _print_Sum(self, expr):\n        return \"Hold[Sum[\" + ', '.join(self.doprint(a) for a in expr.args) + \"]]\"\n\n    def _print_Derivative(self, expr):\n        dexpr = expr.expr\n        dvars = [i[0] if i[1] == 1 else i for i in expr.variable_count]\n        return \"Hold[D[\" + ', '.join(self.doprint(a) for a in [dexpr] + dvars) + \"]]\"\n\n\ndef mathematica_code(expr, **settings):\n    r\"\"\"Converts an expr to a string of the Wolfram Mathematica code\n\n    Examples\n    ========\n\n    >>> from sympy import mathematica_code as mcode, symbols, sin\n    >>> x = symbols('x')\n    >>> mcode(sin(x).series(x).removeO())\n    '(1/120)*x^5 - 1/6*x^3 + x'\n    \"\"\"\n    return MCodePrinter(settings).doprint(expr)",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 40,
+    "kind": "text",
+    "text": "The `_print_LatticeOp` override looks correct, but `Max` might not actually be a `LatticeOp`, so that method might never be called. I should inspect where `Max` is defined to see its class hierarchy and then adjust the printer accordingly (likely by adding a dedicated `_print_Max` method instead)."
+   },
+   {
+    "seq": 41,
+    "kind": "tool_use",
+    "id": "t14",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && grep -Rsn \"class Max\" sympy | head"
+    }
+   },
+   {
+    "seq": 42,
+    "kind": "tool_result",
+    "id": "t14",
+    "name": "Bash",
+    "content": "sympy/functions/elementary/miscellaneous.py:645:class Max(MinMaxBase, Application):\nsympy/stats/crv_types.py:1824:class MaxwellDistribution(SingleContinuousDistribution):\nsympy/parsing/maxima.py:7:class MaximaHelpers:",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 43,
+    "kind": "text",
+    "text": "I need to see how `Max` is defined (its base classes) to understand why the Mathematica printer isn’t using `_print_Function` but is falling back to something that produces `Max(2, x)`. This will guide whether we should add `_print_Max` or adjust dispatch."
+   },
+   {
+    "seq": 44,
+    "kind": "tool_use",
+    "id": "t15",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && sed -n '620,700p' sympy/functions/elementary/miscellaneous.py"
+    }
+   },
+   {
+    "seq": 45,
+    "kind": "tool_result",
+    "id": "t15",
+    "name": "Bash",
+    "content": "_eval_is_antihermitian = lambda s: _torf(i.is_antihermitian for i in s.args)\n    _eval_is_commutative = lambda s: _torf(i.is_commutative for i in s.args)\n    _eval_is_complex = lambda s: _torf(i.is_complex for i in s.args)\n    _eval_is_composite = lambda s: _torf(i.is_composite for i in s.args)\n    _eval_is_even = lambda s: _torf(i.is_even for i in s.args)\n    _eval_is_finite = lambda s: _torf(i.is_finite for i in s.args)\n    _eval_is_hermitian = lambda s: _torf(i.is_hermitian for i in s.args)\n    _eval_is_imaginary = lambda s: _torf(i.is_imaginary for i in s.args)\n    _eval_is_infinite = lambda s: _torf(i.is_infinite for i in s.args)\n    _eval_is_integer = lambda s: _torf(i.is_integer for i in s.args)\n    _eval_is_irrational = lambda s: _torf(i.is_irrational for i in s.args)\n    _eval_is_negative = lambda s: _torf(i.is_negative for i in s.args)\n    _eval_is_noninteger = lambda s: _torf(i.is_noninteger for i in s.args)\n    _eval_is_nonnegative = lambda s: _torf(i.is_nonnegative for i in s.args)\n    _eval_is_nonpositive = lambda s: _torf(i.is_nonpositive for i in s.args)\n    _eval_is_nonzero = lambda s: _torf(i.is_nonzero for i in s.args)\n    _eval_is_odd = lambda s: _torf(i.is_odd for i in s.args)\n    _eval_is_polar = lambda s: _torf(i.is_polar for i in s.args)\n    _eval_is_positive = lambda s: _torf(i.is_positive for i in s.args)\n    _eval_is_prime = lambda s: _torf(i.is_prime for i in s.args)\n    _eval_is_rational = lambda s: _torf(i.is_rational for i in s.args)\n    _eval_is_real = lambda s: _torf(i.is_real for i in s.args)\n    _eval_is_transcendental = lambda s: _torf(i.is_transcendental for i in s.args)\n    _eval_is_zero = lambda s: _torf(i.is_zero for i in s.args)\n\nclass Max(MinMaxBase, Application):\n    \"\"\"\n    Return, if possible, the maximum value of the list.\n\n    When number of arguments is equal one, then\n    return this argument.\n\n    When number of arguments is equal two, then\n    return, if possible, the value from (a, b) that is >= the other.\n\n    In common case, when the length of list greater than 2, the task\n    is more complicated. Return only the arguments, which are greater\n    than others, if it is possible to determine directional relation.\n\n    If is not possible to determine such a relation, return a partially\n    evaluated result.\n\n    Assumptions are used to make the decision too.\n\n    Also, only comparable arguments are permitted.\n\n    It is named ``Max`` and not ``max`` to avoid conflicts\n    with the built-in function ``max``.\n\n\n    Examples\n    ========\n\n    >>> from sympy import Max, Symbol, oo\n    >>> from sympy.abc import x, y\n    >>> p = Symbol('p', positive=True)\n    >>> n = Symbol('n', negative=True)\n\n    >>> Max(x, -2)                  #doctest: +SKIP\n    Max(x, -2)\n    >>> Max(x, -2).subs(x, 3)\n    3\n    >>> Max(p, -2)\n    p\n    >>> Max(x, y)\n    Max(x, y)\n    >>> Max(x, y) == Max(y, x)\n    True\n    >>> Max(x, Max(y, z))           #doctest: +SKIP\n    Max(x, y, z)\n    >>> Max(n, 8, p, 7, -oo)        #doctest: +SKIP\n    Max(8, p)\n    >>> Max (1, x, oo)\n    oo\n\n    * Algorithm\n\n    The task can be considered as searching of supremums in the\n    directed complete partial orders [1]_.\n\n    The source values are sequentially allocated by the isolated subsets",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 46,
+    "kind": "text",
+    "text": "The `_print_LatticeOp` override isn’t used by `Max`, since `Max` is not a `LatticeOp`. The printer dispatches by class name, so we need explicit methods like `_print_Max` (and probably `_print_Min`) on `MCodePrinter` to emit Mathematica-style `Max[...]`/`Min[...]`. I’ll update `sympy/printing/mathematica.py` to add `_print_Max` and `_print_Min` methods that mirror `_print_Function` but use brackets, then re-test `mathematica_code(Max(x, 2))`."
+   },
+   {
+    "seq": 47,
+    "kind": "tool_use",
+    "id": "t16",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && python - <<'PY'\nfrom pathlib import Path\n\npath = Path(\"sympy/printing/mathematica.py\")\ntext = path.read_text()\n\nif \"_print_Max\" not in text:\n    insert = \"\"\"\n    def _print_Max(self, expr):\n        return \"Max[%s]\" % self.stringify(expr.args, \", \")\n\n    def _print_Min(self, expr):\n        return \"Min[%s]\" % self.stringify(expr.args, \", \")\n\n\"\"\"\n    marker = \"    def _print_Function(self, expr):\"\n    idx = text.find(marker)\n    if idx != -1:\n        end = text.find(\"\\n\\n\", idx)\n        if end != -1:\n            end += 2\n            text = text[:end] + insert + text[end:]\n        else:\n            text = text + insert\n\npath.write_text(text)\n\nfrom sympy import symbols, Max, Min\nfrom sympy import mathematica_code as mcode\n\nx = symbols('x')\nprint(\"Max:\", mcode(Max(x, 2)))\nprint(\"Min:\", mcode(Min(x, 2)))\nPY"
+    }
+   },
+   {
+    "seq": 48,
+    "kind": "tool_result",
+    "id": "t16",
+    "name": "Bash",
+    "content": "Max: Max[2, x]\nMin: Min[2, x]",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 49,
+    "kind": "text",
+    "text": "The core functionality now prints valid Mathematica syntax for `Max`/`Min`. I should run the existing Mathematica printer tests to ensure no regressions and confirm everything passes without modifying tests."
+   },
+   {
+    "seq": 50,
+    "kind": "tool_use",
+    "id": "t17",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && python -m pytest sympy/printing/tests/test_mathematica.py"
+    }
+   },
+   {
+    "seq": 51,
+    "kind": "tool_result",
+    "id": "t17",
+    "name": "Bash",
+    "content": "Exit code 1\n/opt/miniconda3/envs/testbed/bin/python: No module named pytest",
+    "isError": true,
+    "exitCode": 1,
+    "looksLikeFailure": true
+   },
+   {
+    "seq": 52,
+    "kind": "text",
+    "text": "Pytest isn’t installed yet, so I’ll install it and then run only the Mathematica printer tests to check for regressions related to my changes."
+   },
+   {
+    "seq": 53,
+    "kind": "tool_use",
+    "id": "t18",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && pip install -q pytest && python -m pytest sympy/printing/tests/test_mathematica.py"
+    }
+   },
+   {
+    "seq": 54,
+    "kind": "tool_result",
+    "id": "t18",
+    "name": "Bash",
+    "content": "WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.\n============================= test session starts ==============================\nplatform linux -- Python 3.9.20, pytest-8.4.2, pluggy-1.6.0\narchitecture: 64-bit\ncache:        yes\nground types: python \n\nrootdir: /testbed\ncollected 10 items\n\nsympy/printing/tests/test_mathematica.py ..........                      [100%]\n\n============================== 10 passed in 0.07s ==============================",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   },
+   {
+    "seq": 55,
+    "kind": "text",
+    "text": "The Mathematica printer has been updated so that `Max` and `Min` now print with Mathematica-style brackets (e.g. `Max[2, x]`), and the existing Mathematica printer tests all pass. I’ll now submit the changes as requested."
+   },
+   {
+    "seq": 56,
+    "kind": "tool_use",
+    "id": "t19",
+    "name": "Bash",
+    "input": {
+     "command": "cd /testbed && echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT && git add -A && git diff --cached"
+    }
+   },
+   {
+    "seq": 57,
+    "kind": "tool_result",
+    "id": "t19",
+    "name": "Bash",
+    "content": "diff --git a/sympy/printing/mathematica.py b/sympy/printing/mathematica.py\nindex ea7e3a2d94..4d1f0deef4 100644\n--- a/sympy/printing/mathematica.py\n+++ b/sympy/printing/mathematica.py\n@@ -6,6 +6,7 @@\n from sympy.printing.codeprinter import CodePrinter\n from sympy.printing.str import StrPrinter\n from sympy.printing.precedence import precedence\n+from sympy.core.compatibility import default_sort_key\n \n # Used in MCodePrinter._print_Function(self)\n known_functions = {\n@@ -101,6 +102,18 @@ def _print_Function(self, expr):\n                     return \"%s[%s]\" % (mfunc, self.stringify(expr.args, \", \"))\n         return expr.func.__name__ + \"[%s]\" % self.stringify(expr.args, \", \")\n \n+\n+    def _print_Max(self, expr):\n+        return \"Max[%s]\" % self.stringify(expr.args, \", \")\n+\n+    def _print_Min(self, expr):\n+        return \"Min[%s]\" % self.stringify(expr.args, \", \")\n+\n+\n+    def _print_LatticeOp(self, expr):\n+        args = sorted(expr.args, key=default_sort_key)\n+        return expr.func.__name__ + \"[%s]\" % \", \".join(self.doprint(a) for a in args)\n+\n     def _print_Integral(self, expr):\n         if len(expr.variables) == 1 and not expr.limits[0][1:]:\n             args = [expr.args[0], expr.variables[0]]",
+    "isError": false,
+    "exitCode": 0,
+    "looksLikeFailure": false
+   }
+  ],
+  "toolRoles": {
+   "shell": [
+    "Bash"
+   ],
+   "read": [],
+   "write": [],
+   "edit": []
+  },
+  "finalText": "Pytest isn’t installed yet, so I’ll install it and then run only the Mathematica printer tests to check for regressions related to my changes.\n\nThe Mathematica printer has been updated so that `Max` and `Min` now print with Mathematica-style brackets (e.g. `Max[2, x]`), and the existing Mathematica printer tests all pass. I’ll now submit the changes as requested.",
+  "model": "gpt-5.1-medium",
+  "cliVersion": "mini-swe-agent",
+  "toolsAvailable": [
+   "Bash"
+  ],
+  "numTurns": 19,
+  "costUsd": 0,
+  "harnessSubtype": "success",
+  "harnessIsError": false,
+  "harnessResultText": "Pytest isn’t installed yet, so I’ll install it and then run only the Mathematica printer tests to check for regressions related to my changes.\n\nThe Mathematica printer has been updated so that `Max` and `Min` now print with Mathematica-style brackets (e.g. `Max[2, x]`), and the existing Mathematica printer tests all pass. I’ll now submit the changes as requested.",
+  "permissionDenials": []
+ },
+ "source": {
+  "dataset": "tarsur385/swev-trm-trajectories-25models",
+  "offset": 4447
+ }
+}
