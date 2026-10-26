@@ -33,7 +33,7 @@ it, `.claude-plugin/plugin.json`, names the hooks in `plugin/claude-code/hooks/h
 
 ```sh
 claude plugin marketplace add boriskezikov/truthgate
-claude plugin install truthgate@truthgate-plugins
+claude plugin install trustcheck@trustcheck
 ```
 
 For one session, from a checkout: `claude --plugin-dir /path/to/truthgate` (the repository root). Or as hooks in
@@ -70,7 +70,7 @@ your `~/.claude/settings.json` (or a project's `.claude/settings.json`), with th
   the prompt hook kept the before-snapshot, and the stop hook answered with its verdict line and wrote its record. A
   missing `package.json` and a failed `npm install` each came back as a system message.
 - Two things to know: the headless stream prints no `hook_started` events for a plugin's hooks, so the records under
-  `$CLAUDE_PLUGIN_DATA/records/` (`~/.claude/plugins/data/truthgate-truthgate-plugins/` for the marketplace install,
-  `truthgate-inline/` for `--plugin-dir`) are the evidence that the hooks ran; and the transcript does not say which
+  `$CLAUDE_PLUGIN_DATA/records/` (`~/.claude/plugins/data/trustcheck-trustcheck/` for the marketplace install,
+  `trustcheck-inline/` for `--plugin-dir`) are the evidence that the hooks ran; and the transcript does not say which
   tools a session had, so the audit assumes Claude Code's full set and a missing run reads as "never run" rather
   than "no shell".

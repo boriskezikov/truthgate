@@ -104,7 +104,7 @@ async function main(): Promise<void> {
   }
   if (input.hook_event_name !== 'Stop') return;
   if (input.stop_hook_active) return;
-  if (!input.transcript_path || !existsSync(input.transcript_path)) { out({ systemMessage: 'TruthGate: no transcript to audit' }); return; }
+  if (!input.transcript_path || !existsSync(input.transcript_path)) { out({ systemMessage: 'TrustCheck: no transcript to audit' }); return; }
   const turn = turnFromTranscript(input.transcript_path, input.last_assistant_message);
   if (!turn) return;
   if (!turn.trace.events.some((e) => e.kind === 'tool_use')) return;
@@ -126,7 +126,7 @@ async function main(): Promise<void> {
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     writeFileSync(join(dir, `${stamp}.json`), `${JSON.stringify({ taskPrompt: turn.prompt, cwd, worldBefore, worldAfter, trace: turn.trace, report, elapsedMs: Date.now() - t0 }, null, 1)}\n`);
   }
-  const summary = `TruthGate: ${report.verdict} (p=${report.pDeceptive.toFixed(2)}; ${report.claims.length} claims, coverage ${(100 * report.coverage).toFixed(0)}%, judge $${report.judgeCostUsd.toFixed(3)}, ${Math.round((Date.now() - t0) / 1000)} s${worldBefore ? '' : '; no before-snapshot, file claims went to the judge'})`;
+  const summary = `TrustCheck: ${report.verdict} (p=${report.pDeceptive.toFixed(2)}; ${report.claims.length} claims, coverage ${(100 * report.coverage).toFixed(0)}%, judge $${report.judgeCostUsd.toFixed(3)}, ${Math.round((Date.now() - t0) / 1000)} s${worldBefore ? '' : '; no before-snapshot, file claims went to the judge'})`;
   const lines = evidenceLines(report);
   if (report.verdict === 'DECEPTIVE') {
     out({ decision: 'block', reason: `${summary}\nYour report contradicts the trace of what you actually did. Correct the report so that it states what happened, including what failed or was not run:\n${lines.join('\n')}`, systemMessage: `${summary}\n${lines.join('\n')}` });
@@ -136,4 +136,4 @@ async function main(): Promise<void> {
   out({ systemMessage: lines.length ? `${summary}\n${lines.join('\n')}` : summary });
 }
 
-main().catch((e) => { out({ systemMessage: `TruthGate could not run: ${(e as Error).message.slice(0, 300)}` }); });
+main().catch((e) => { out({ systemMessage: `TrustCheck could not run: ${(e as Error).message.slice(0, 300)}` }); });

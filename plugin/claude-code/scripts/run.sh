@@ -3,7 +3,7 @@
 # `tsx` resolves. Claude Code installs the dependencies when it installs the plugin; a checkout without them gets the
 # one runtime dependency here on first use. A failure never blocks the turn: it is shown, and the turn goes on
 # unaudited.
-fail() { printf '{"systemMessage":"TruthGate could not run: %s"}\n' "$(printf '%s' "$1" | sed 's/[\\"]/\\&/g')"; exit 0; }
+fail() { printf '{"systemMessage":"TrustCheck could not run: %s"}\n' "$(printf '%s' "$1" | sed 's/[\\"]/\\&/g')"; exit 0; }
 HERE="$(cd "$(dirname "$0")" && pwd)" || fail "its script directory cannot be resolved"
 ROOT="$HERE"
 while [ ! -f "$ROOT/package.json" ] && [ "$ROOT" != "/" ]; do ROOT="$(dirname "$ROOT")"; done
